@@ -20,15 +20,14 @@ app.get("/api", (req, res) => {
 });
 
 // Production: Serve React build
-const _dirname = path.resolve(); // Ye root directory ka sahi path nikalega
-
 if (process.env.NODE_ENV === "production") {
-  // Static files ko serve karein
-  app.use(express.static(path.join(_dirname, "client", "build")));
+  // Static files ke liye sahi path setup
+  const buildPath = path.resolve(__dirname, "client", "build");
+  app.use(express.static(buildPath));
 
-  // Baaki sabhi requests ke liye index.html bhejein
+  // Sari requests ko index.html par redirect karein
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(_dirname, "client", "build", "index.html"));
+    res.sendFile(path.resolve(buildPath, "index.html"));
   });
 }
 
