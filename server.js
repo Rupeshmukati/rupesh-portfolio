@@ -21,11 +21,10 @@ app.get("/api", (req, res) => {
 
 // Production: Serve React build
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "client/build")));
+  app.use(express.static(path.join(__dirname, "client", "build")));
 
-  // ✅ FINAL FIX: Use regex fallback instead of '*'
-  app.get(/^\/.*$/, (req, res) => {
-    res.sendFile(path.join(__dirname, "client/build/index.html"));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
   });
 }
 
