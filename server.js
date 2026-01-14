@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const path = require("path"); // Ye zaroori hai files dhoondne ke liye
+const path = require("path"); 
 
 const app = express();
 
@@ -21,7 +21,6 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(buildPath));
 
   // ✅ SAFEST FIX: Wildcard string ki jagah direct Regex use karein
-  // Ye pattern har us path ko match karega jo /api se shuru nahi hota
   app.get(/^\/(?!api).*/, (req, res) => {
     res.sendFile(path.join(buildPath, "index.html"));
   });
