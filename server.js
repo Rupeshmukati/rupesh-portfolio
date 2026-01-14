@@ -4,13 +4,13 @@ require("dotenv").config();
 
 const app = express();
 
-// DB connection
+// DB
 require("./config/dbConfig");
 
 // Middleware
 app.use(express.json());
 
-// Routes
+// API Routes
 const portfolioRoute = require("./routes/portfolioRoute");
 app.use("/api/portfolio", portfolioRoute);
 
@@ -19,20 +19,24 @@ app.get("/api", (req, res) => {
   res.send("API is running...");
 });
 
-// ✅ Serve React build in production
+/**
+ * ==============================
+ * PRODUCTION – SERVE REACT BUILD
+ * ==============================
+ */
 if (process.env.NODE_ENV === "production") {
-  // IMPORTANT: go one level up from /src
+  // Render runs server from /src
   const buildPath = path.join(__dirname, "..", "client", "build");
 
   app.use(express.static(buildPath));
 
-  // Handle React routing (exclude /api)
-  app.get("*", (req, res) => {
+  // ✅ Express 5 SAFE wildcard (NO *)
+  app.get(/^(?!\/api).*/, (req, res) => {
     res.sendFile(path.join(buildPath, "index.html"));
   });
 }
 
-// Port
+// Port (Render provides PORT)
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
