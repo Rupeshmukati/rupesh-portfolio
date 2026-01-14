@@ -21,15 +21,15 @@ app.get("/api", (req, res) => {
 
 // Production: Serve React build
 if (process.env.NODE_ENV === "production") {
+  // Static files serve karne ke liye
   const buildPath = path.join(__dirname, "client", "build");
   app.use(express.static(buildPath));
 
-  // ✅ FIX: Express 5+ ke liye wildcard ko aise likha jata hai
-  app.get("*", (req, res) => {
+  // ✅ EXPRESS 5 FIX: Wildcard '*' ki jagah (.*) use karein
+  app.get("(.*)", (req, res) => {
     res.sendFile(path.join(buildPath, "index.html"), (err) => {
       if (err) {
-        // Agar file nahi milti toh server crash nahi hoga
-        res.status(500).send("Build file not found. Check your build path.");
+        res.status(500).send("Build directory issue: index.html not found.");
       }
     });
   });
