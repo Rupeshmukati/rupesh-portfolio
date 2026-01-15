@@ -16,11 +16,12 @@ app.use(express.json());
 // API routes
 app.use("/api/portfolio", require("./routes/portfolioRoute"));
 
-// Serve React build
+// Serve React build (PRODUCTION)
 if (process.env.NODE_ENV === "production") {
   const buildPath = path.join(__dirname, "client", "build");
   app.use(express.static(buildPath));
 
+  // 🔥 FIXED ROUTE (NO REGEX)
   app.get("*", (req, res) => {
     res.sendFile(path.join(buildPath, "index.html"));
   });
