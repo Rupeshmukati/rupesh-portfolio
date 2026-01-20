@@ -4,7 +4,8 @@ import { useSelector } from "react-redux";
 function Introduction() {
   const { portfolioData } = useSelector((state) => state.root);
   const { intro } = portfolioData;
-  const { firstName, lastName, welcomeText, description, caption, image } =  intro;
+  const { firstName, lastName, welcomeText, description, caption, image } =
+    intro;
 
   return (
     <section className="relative bg-primary overflow-hidden">
@@ -41,11 +42,7 @@ function Introduction() {
 
             <img
               // Agar intro.image hai to uploads folder se uthao, nahi to default file
-              src={
-                image
-                  ? `/uploads/${image}`
-                  : "/rupesh-profile.png"
-              }
+              src={image ? `/uploads/${image}` : "/rupesh-profile.png"}
               alt="Profile"
               className="w-[220px] md:w-[280px] lg:w-[300px] rounded-full object-cover border-4 border-white/10 z-50"
             />
