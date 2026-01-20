@@ -43,7 +43,7 @@ function Introduction() {
               // Agar intro.image hai to uploads folder se uthao, nahi to default file
               src={
                 image
-                  ? `https://rupesh-portfolio-q95u.onrender.com/${image}`
+                  ? `/uploads/${image}`
                   : "/rupesh-profile.png"
               }
               alt="Profile"
