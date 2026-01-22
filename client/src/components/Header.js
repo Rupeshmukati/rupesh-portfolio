@@ -110,7 +110,7 @@ const Header = () => {
         {/* Close Button */}
         <div className="flex justify-end p-4">
           <button className="text-xl" onClick={() => setMenuOpen(false)}>
-            <i className="ri-close-line text-black"></i>
+            <i className="ri-close-line hover:text-black"></i>
           </button>
         </div>
 

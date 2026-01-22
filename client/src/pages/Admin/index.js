@@ -104,7 +104,7 @@ function Admin() {
         </div>
 
         {portfolioData && (
-          <div className="bg-white rounded-2xl py-6 sm:pr-6 sm:pl-0 shadow">
+          <div className="bg-white rounded-2xl py-0 pb-5 px-5 sm:py-0 md:py-6 sm:pr-6 sm:pl-0 shadow">
             <Tabs
               defaultActiveKey="1"
               tabPlacement={tabPlacement}
