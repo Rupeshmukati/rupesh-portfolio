@@ -11,7 +11,7 @@ function Footer() {
       <div className="h-[1px] w-full bg-gray-700"></div>
 
       <div className="flex items-center justify-center flex-col mt-6 opacity-70">
-        <p className="text-white mb-2">
+        <p className="text-white mb-1">
           © {new Date().getFullYear()} Designed and Developed By
         </p>
 

@@ -37,7 +37,7 @@ const Header = () => {
       >
         <div
           className={`max-w-[1350px] mx-auto sm:px-14 px-5 flex items-center justify-between transition-all duration-300
-          ${isSticky ? "py-2" : "md:py-4 sm:py-3 py-2"}`}
+          ${isSticky ? "py-3" : "md:py-4 sm:py-3 py-2"}`}
         >
           {/* Logo */}
           <a href="/">

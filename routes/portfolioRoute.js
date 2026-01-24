@@ -1,4 +1,15 @@
 const router = require("express").Router();
+const nodemailer = require("nodemailer");
+require("dotenv").config();
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // 16 digit code without spaces
+  },
+});
+
 const {
   Intro,
   About,
@@ -7,7 +18,9 @@ const {
   Experience,
   Course,
   Socialurl,
+  Enquiry,
 } = require("../models/portfolioModel");
+
 const User = require("../models/userModel");
 const upload = require("../middlewares/upload"); // Aapka middleware
 
@@ -21,6 +34,7 @@ router.get("/get-portfolio-data", async (req, res) => {
     const experiences = await Experience.find();
     const courses = await Course.find();
     const socialurls = await Socialurl.find();
+    const enquiries = await Enquiry.find();
 
     res.status(200).send({
       intro: intros[0],
@@ -30,6 +44,7 @@ router.get("/get-portfolio-data", async (req, res) => {
       experience: experiences,
       course: courses,
       socialurl: socialurls[0],
+      enquiry: enquiries,
     });
   } catch (error) {
     res.status(500).send(error);
@@ -260,7 +275,7 @@ router.post("/delete-course", async (req, res) => {
   }
 });
 
-//admin login
+//* admin login
 router.post("/admin-login", async (req, res) => {
   try {
     const user = await User.findOne({
@@ -283,6 +298,94 @@ router.post("/admin-login", async (req, res) => {
     }
   } catch (error) {
     res.status(500).send(error);
+  }
+});
+
+//* Add Enquiry
+router.post("/add-enquiry", async (req, res) => {
+  try {
+    const { name, email, phone, projectDetails } = req.body;
+
+    // 1. Pehle DB mein save karein
+    const newEnquiry = new Enquiry(req.body);
+    await newEnquiry.save();
+
+    // 2. Email bhejne ka try karein (Try-Catch ke andar taaki form fail na ho)
+    try {
+      const mailOptions = {
+        from: `"${name}" <${email}>`,
+        to: process.env.EMAIL_USER,
+        subject: `🚀 New Project Enquiry from ${name}`,
+        html: `<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
+          <div style="background-color: #1a237e; color: white; padding: 20px; text-align: center;">
+            <h1 style="margin: 0; font-size: 24px;">New Enquiry Received</h1>
+            <p style="margin: 5px 0 0; opacity: 0.8;">Portfolio Contact Form</p>
+          </div>
+          
+          <div style="padding: 30px; background-color: #ffffff;">
+            <p style="color: #555; font-size: 16px;">Hello <b>Rupesh</b>, you have a new project enquiry from your portfolio website.</p>
+            
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888; width: 30%;">Name</td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; font-weight: bold; color: #333;">${name}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888;">Email</td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #1a73e8;">${email}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888;">Phone</td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #333;">${phone || "Not Provided"}</td>
+              </tr>
+            </table>
+
+            <div style="background-color: #f5f5f5; padding: 20px; border-left: 4px solid #1a237e; margin-top: 10px;">
+              <h4 style="margin: 0 0 10px 0; color: #1a237e;">Project Details:</h4>
+              <p style="margin: 0; color: #444; line-height: 1.6;">${projectDetails}</p>
+            </div>
+
+            <div style="margin-top: 30px; text-align: center;">
+              <a href="mailto:${email}" style="background-color: #1a237e; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Reply to Client</a>
+            </div>
+          </div>
+
+          <div style="background-color: #f1f1f1; color: #888; padding: 15px; text-align: center; font-size: 12px;">
+            <p style="margin: 0;">This email was sent from your Portfolio Website.</p>
+            <p style="margin: 5px 0 0;">© ${new Date().getFullYear()} Rupesh Mukati</p>
+          </div>
+        </div>`,
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log("Email sent successfully");
+    } catch (mailError) {
+      console.log("Email failed but data saved:", mailError.message);
+      // Yahan hum return nahi karenge, sirf log karenge
+    }
+
+    res.status(200).send({
+      success: true,
+      message: "Enquiry submitted successfully!",
+    });
+  } catch (error) {
+    console.log("Main Route Error:", error);
+    res
+      .status(500)
+      .send({ success: false, message: "Server error, try again." });
+  }
+});
+
+//* delete Enquiry
+router.post("/delete-enquiry", async (req, res) => {
+  try {
+    await Enquiry.findOneAndDelete({ _id: req.body._id });
+    res.status(200).send({
+      success: true,
+      message: "Enquiry deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).send({ success: false, message: error.message });
   }
 });
 

@@ -64,6 +64,29 @@ const socialurlSchema = new mongoose.Schema({
   instagram: { type: String, required: true, trim: true },
 });
 
+const enquirySchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    phone: {
+      type: String,
+    },
+    projectDetails: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true },
+);
+
 module.exports = {
   Intro: mongoose.model("intros", introSchema),
   About: mongoose.model("abouts", aboutSchema),
@@ -72,4 +95,5 @@ module.exports = {
   Course: mongoose.model("courses", coursesSchema),
   Contact: mongoose.model("contacts", contactSchema),
   Socialurl: mongoose.model("socialurls", socialurlSchema),
+  Enquiry: mongoose.model("enquiries", enquirySchema),
 };

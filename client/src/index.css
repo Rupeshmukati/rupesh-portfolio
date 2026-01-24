@@ -7,6 +7,7 @@
 
 * {
   font-family: "Montserrat", sans-serif;
+  line-height: normal;
 }
 
 
@@ -197,6 +198,10 @@ textarea::placeholder {
 
 div[role="tabpanel"] .p-5 {
   padding: 0rem;
+}
+
+.ant-form-item-explain-error {
+    display: none;
 }
 
 @media (max-width: 768px) {

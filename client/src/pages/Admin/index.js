@@ -11,9 +11,11 @@ import AdminProjects from "./AdminProjects";
 import AdminCourses from "./AdminCourse";
 import AdminContact from "./AdminContact";
 import AdminSocialurl from "./AdminSocialurl";
+import AdminEnquiries from "./AdminEnquiries";
 
 import { ShowLoading, HideLoading } from "../../redux/rootSlice";
 import AdminHeader from "../../components/AdminHeader";
+
 
 function Admin() {
   const dispatch = useDispatch();
@@ -32,6 +34,7 @@ function Admin() {
     { key: "5", label: "Courses", children: <AdminCourses /> },
     { key: "6", label: "Contacts", children: <AdminContact /> },
     { key: "7", label: "Social Urls", children: <AdminSocialurl /> },
+    { key: "8", label: "Enquiries", children: <AdminEnquiries /> },
   ];
 
   // 🔓 LOGOUT (sirf yahin se admin-login allowed)
@@ -85,7 +88,7 @@ function Admin() {
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4 w-full pr-4">
-            <h1 className="text-lg sm:text-2xl font-semibold text-secondary mb-0">
+            <h1 className="text-lg sm:text-2xl font-semibold text-secondary mb-0 leading-tight">
               Admin Portfolio
             </h1>
             <div className="flex-1 h-[1px] bg-tertiary opacity-80 max-w-[100px] sm:max-w-[225px]"></div>
