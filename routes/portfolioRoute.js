@@ -8,6 +8,10 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  tls: {
+    // Yeh line Render ke liye compulsory hai
+    rejectUnauthorized: false 
+  }
 });
 
 const {
@@ -306,17 +310,23 @@ router.post("/add-enquiry", async (req, res) => {
   try {
     const { name, email, phone, projectDetails } = req.body;
 
-    // 1. Database mein save pehle karein
-    const newEnquiry = new Enquiry(req.body);
+    // 1. Database mein data save karein
+    const newEnquiry = new Enquiry({
+      name,
+      email,
+      phone,
+      projectDetails,
+    });
     await newEnquiry.save();
 
-    // 2. Email options setup
+    // 2. Email Notification (Non-blocking way)
+    // Hum yahan 'await' nahi laga rahe taaki user ko response turant mil jaye
     const mailOptions = {
-      from: process.env.EMAIL_USER, // Sender hamesha wahi rakhein jo auth mein hai
-      to: process.env.EMAIL_USER,   // Aapko mail milna chahiye
-      replyTo: email,               // Reply karne par user ka email aaye
-      subject: `🚀 Portfolio Enquiry: ${name}`,
-      html: `<div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
+      from: `"${name}" <${email}>`,
+      to: process.env.EMAIL_USER,
+      subject: `🚀 New Project Enquiry from ${name}`,
+      html: `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
           <div style="background-color: #1a237e; color: white; padding: 20px; text-align: center;">
             <h1 style="margin: 0; font-size: 24px;">New Enquiry Received</h1>
             <p style="margin: 5px 0 0; opacity: 0.8;">Enquiry Form</p>
@@ -339,24 +349,28 @@ router.post("/add-enquiry", async (req, res) => {
           <div style="background-color: #f1f1f1; color: #888; padding: 15px; text-align: center; font-size: 12px;">
             <p>© ${new Date().getFullYear()} Rupesh Mukati | Portfolio Enquiry</p>
           </div>
-        </div>`
+        </div>`,
     };
 
-    // 3. Wait for email confirmation
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Email Success:", info.response);
-
-    return res.status(200).send({
-      success: true,
-      message: "Enquiry submitted and Email received!",
+    // Background mein mail bhej rahe hain
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log("Email background error:", error.message);
+      } else {
+        console.log("Email background success:", info.response);
+      }
     });
 
+    // 3. User ko Success Response turant bhejein
+    return res.status(200).send({
+      success: true,
+      message: "Enquiry submitted successfully!",
+    });
   } catch (error) {
-    console.error("DETAILED ERROR:", error);
+    console.log("Main Route Error:", error);
     return res.status(500).send({
       success: false,
-      message: "Data saved but email failed. Check logs.",
-      error: error.message
+      message: "Something went wrong, but your data might be saved.",
     });
   }
 });
