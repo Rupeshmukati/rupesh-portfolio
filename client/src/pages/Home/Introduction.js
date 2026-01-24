@@ -8,7 +8,8 @@ function Introduction() {
   const dispatch = useDispatch();
   const { portfolioData } = useSelector((state) => state.root);
   const { intro } = portfolioData;
-  const { firstName, lastName, welcomeText, description, caption, image } =  intro;
+  const { firstName, lastName, welcomeText, description, caption, image } =
+    intro;
   const [open, setOpen] = useState(false);
 
   // Enquiry submit karne ka naya function
@@ -53,9 +54,9 @@ function Introduction() {
 
           <button
             onClick={() => setOpen(true)}
-            className="border border-tertiary text-tertiary px-6 sm:px-10 py-2 sm:py-3 rounded-md text-sm sm:text-base hover:bg-tertiary hover:text-primary transition"
+            className="hover:bg-secondary border border-tertiary text-tertiary px-6 sm:px-10 py-2 sm:py-3 rounded-md text-sm sm:text-base"
           >
-            Get Started
+            Contact Me
           </button>
         </div>
 
