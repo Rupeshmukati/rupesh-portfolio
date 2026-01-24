@@ -3,13 +3,15 @@ const router = require("express").Router();
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
   host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // Port 465 ke liye true hona zaroori hai
+  port: 587,
+  secure: false, // 587 ke liye hamesha false rakhein
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false, // Yeh line connection timeout aur certificate errors ko fix karti hai
   },
 });
 

@@ -75,7 +75,7 @@ function AdminEnquiries() {
   ];
 
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-1">
       {/* Header */}
       <div className="flex flex-row justify-between gap-3 mb-4">
         <h2 className="text-xl font-semibold text-primary">
