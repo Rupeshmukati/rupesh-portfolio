@@ -1,29 +1,8 @@
 require("dotenv").config();
 const router = require("express").Router();
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // TLS
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Gmail App Password
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
-
-// SMTP verify (log me clear dikhega)
-transporter.verify((error, success) => {
-  if (error) {
-    console.log("❌ SMTP VERIFY ERROR:", error.message);
-  } else {
-    console.log("✅ SMTP SERVER READY");
-  }
-});
-
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const {
   Intro,
@@ -321,7 +300,7 @@ router.post("/add-enquiry", async (req, res) => {
   try {
     const { name, email, phone, projectDetails } = req.body;
 
-    // 1. Database mein data save karein
+    // 1. Save enquiry in DB
     const newEnquiry = new Enquiry({
       name,
       email,
@@ -330,12 +309,10 @@ router.post("/add-enquiry", async (req, res) => {
     });
     await newEnquiry.save();
 
-    // 2. Email Notification (Non-blocking way)
-    // Hum yahan 'await' nahi laga rahe taaki user ko response turant mil jaye
-    const mailOptions = {
-      from: `"Portfolio Enquiry" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
-      replyTo: email,
+    // 2. Send email using RESEND (Render-safe)
+    await resend.emails.send({
+      from: "Portfolio <onboarding@resend.dev>",
+      to: [process.env.EMAIL_USER], // your gmail
       subject: `🚀 New Project Enquiry from ${name}`,
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
@@ -344,45 +321,52 @@ router.post("/add-enquiry", async (req, res) => {
             <p style="margin: 5px 0 0; opacity: 0.8;">Enquiry Form</p>
           </div>
           <div style="padding: 30px; background-color: #ffffff;">
-            <p style="color: #555; font-size: 16px;">Hello <b>Rupesh</b>, you have a new project enquiry from your portfolio website.</p>
+            <p style="color: #555; font-size: 16px;">
+              Hello <b>Rupesh</b>, you have a new project enquiry from your portfolio website.
+            </p>
             <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-              <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888;">Name</td><td style="padding: 10px 0; border-bottom: 1px solid #eee; font-weight: bold;">${name}</td></tr>
-              <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888;">Email</td><td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #1a73e8;">${email}</td></tr>
-              <tr><td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888;">Phone</td><td style="padding: 10px 0; border-bottom: 1px solid #eee;">${phone || "N/A"}</td></tr>
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888;">Name</td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; font-weight: bold;">${name}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888;">Email</td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #1a73e8;">${email}</td>
+              </tr>
+              <tr>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee; color: #888;">Phone</td>
+                <td style="padding: 10px 0; border-bottom: 1px solid #eee;">${phone || "N/A"}</td>
+              </tr>
             </table>
             <div style="background-color: #f5f5f5; padding: 20px; border-left: 4px solid #1a237e;">
               <h4 style="margin: 0 0 10px 0; color: #1a237e;">Project Details:</h4>
               <p style="margin: 0; color: #444; line-height: 1.6;">${projectDetails}</p>
             </div>
             <div style="margin-top: 30px; text-align: center;">
-              <a href="mailto:${email}" style="background-color: #1a237e; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Reply to Client</a>
+              <a href="mailto:${email}" style="background-color: #1a237e; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+                Reply to Client
+              </a>
             </div>
           </div>
           <div style="background-color: #f1f1f1; color: #888; padding: 15px; text-align: center; font-size: 12px;">
             <p>© ${new Date().getFullYear()} Rupesh Mukati | Portfolio Enquiry</p>
           </div>
-        </div>`,
-    };
-
-    // Background mein mail bhej rahe hain
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log("Email background error:", error.message);
-      } else {
-        console.log("Email background success:", info.response);
-      }
+        </div>
+      `,
     });
 
-    // 3. User ko Success Response turant bhejein
+    console.log("✅ Resend mail sent successfully");
+
+    // 3. Send response to user
     return res.status(200).send({
       success: true,
       message: "Enquiry submitted successfully!",
     });
   } catch (error) {
-    console.log("Main Route Error:", error);
+    console.log("❌ Enquiry Error:", error);
     return res.status(500).send({
       success: false,
-      message: "Something went wrong, but your data might be saved.",
+      message: "Something went wrong. Please try again later.",
     });
   }
 });
@@ -399,7 +383,5 @@ router.post("/delete-enquiry", async (req, res) => {
     res.status(500).send({ success: false, message: error.message });
   }
 });
-
-
 
 module.exports = router;
