@@ -8,10 +8,11 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  secure: false, // 👈 ADD THIS
   tls: {
     // Yeh line Render ke liye compulsory hai
-    rejectUnauthorized: false 
-  }
+    rejectUnauthorized: false,
+  },
 });
 
 const {
@@ -322,8 +323,9 @@ router.post("/add-enquiry", async (req, res) => {
     // 2. Email Notification (Non-blocking way)
     // Hum yahan 'await' nahi laga rahe taaki user ko response turant mil jaye
     const mailOptions = {
-      from: `"${name}" <${email}>`,
+      from: `"Portfolio Enquiry" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
+      replyTo: email,
       subject: `🚀 New Project Enquiry from ${name}`,
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
@@ -387,5 +389,7 @@ router.post("/delete-enquiry", async (req, res) => {
     res.status(500).send({ success: false, message: error.message });
   }
 });
+
+
 
 module.exports = router;
