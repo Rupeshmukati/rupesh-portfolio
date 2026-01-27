@@ -11,7 +11,7 @@ const Header = () => {
 
   const hasAnySocial = !!(facebook || instagram || linkedin || emailid);
 
-  // 🔥 Scroll Sticky Logic
+  // Sticky header on scroll
   useEffect(() => {
     const handleScroll = () => {
       setIsSticky(window.scrollY > 50);
@@ -29,6 +29,8 @@ const Header = () => {
     }
   };
 
+  const menuItems = ["about", "experience", "projects", "courses", "contact"];
+
   return (
     <>
       <header
@@ -40,49 +42,66 @@ const Header = () => {
           ${isSticky ? "py-3" : "md:py-4 sm:py-3 py-2"}`}
         >
           {/* Logo */}
-          <a href="/">
-            <div className="flex items-center gap-2 text-lg font-bold">
+          <a href="/" aria-label="Rupesh Mukati - Web Developer">
+            <h2 className="flex items-center gap-2 text-lg font-bold m-0">
               <span className="text-orange-500">R</span>
               <span className="text-white">K</span>
               <span className="text-emerald-400">M</span>
-            </div>
+            </h2>
           </a>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8 text-sm">
-            {["about", "experience", "projects", "courses", "contact"].map(
-              (item) => (
-                <button
-                  key={item}
-                  onClick={() => scrollToSection(item)}
-                  className="text-gray-300 hover:text-emerald-400 transition capitalize"
-                >
-                  {item}
-                </button>
-              ),
-            )}
+            {menuItems.map((item) => (
+              <button
+                key={item}
+                onClick={() => scrollToSection(item)}
+                className="text-gray-300 hover:text-emerald-400 transition capitalize"
+                aria-label={`Go to ${item} section`}
+              >
+                {item}
+              </button>
+            ))}
           </nav>
 
           {/* Social Icons */}
           {hasAnySocial && (
             <div className="flex gap-3">
               {facebook && (
-                <a href={facebook} target="_blank" rel="noreferrer">
+                <a
+                  href={facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook profile"
+                >
                   <i className="ri-facebook-circle-line text-gray-400 hover:text-emerald-400"></i>
                 </a>
               )}
+
               {linkedin && (
-                <a href={linkedin} target="_blank" rel="noreferrer">
+                <a
+                  href={linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn profile"
+                >
                   <i className="ri-linkedin-box-line text-gray-400 hover:text-emerald-400"></i>
                 </a>
               )}
+
               {instagram && (
-                <a href={instagram} target="_blank" rel="noreferrer">
+                <a
+                  href={instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram profile"
+                >
                   <i className="ri-instagram-line text-gray-400 hover:text-emerald-400"></i>
                 </a>
               )}
+
               {emailid && (
-                <a href={`mailto:${emailid}`} rel="noreferrer">
+                <a href={`mailto:${emailid}`} aria-label="Send email">
                   <i className="ri-mail-line text-gray-400 hover:text-emerald-400"></i>
                 </a>
               )}
@@ -93,44 +112,48 @@ const Header = () => {
           <button
             className="md:hidden text-white text-xl"
             onClick={() => setMenuOpen(true)}
+            aria-label="Open menu"
           >
             <i className="ri-menu-line"></i>
           </button>
         </div>
       </header>
 
-      {/* 🔥 Spacer to prevent content jump */}
+      {/* Spacer for sticky header */}
       {isSticky && <div className="h-[70px]"></div>}
 
-      {/* 🔥 Right Slide Mobile Menu */}
+      {/* Mobile Menu */}
       <div
         className={`fixed top-0 right-0 h-full w-[180px] bg-tertiary z-50 transform transition-transform duration-300
         ${menuOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         {/* Close Button */}
         <div className="flex justify-end p-4">
-          <button className="text-xl" onClick={() => setMenuOpen(false)}>
+          <button
+            className="text-xl"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+          >
             <i className="ri-close-line hover:text-black"></i>
           </button>
         </div>
 
-        {/* Menu Items */}
+        {/* Mobile Menu Items */}
         <div className="px-6 space-y-4">
-          {["about", "experience", "projects", "courses", "contact"].map(
-            (item) => (
-              <button
-                key={item}
-                onClick={() => scrollToSection(item)}
-                className="block w-full text-left text-gray-900 hover:text-black hover:font-medium transition capitalize text-sm"
-              >
-                {item}
-              </button>
-            ),
-          )}
+          {menuItems.map((item) => (
+            <button
+              key={item}
+              onClick={() => scrollToSection(item)}
+              className="block w-full text-left text-gray-900 hover:text-black hover:font-medium transition capitalize text-sm"
+              aria-label={`Go to ${item} section`}
+            >
+              {item}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* 🔥 Backdrop */}
+      {/* Backdrop */}
       {menuOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"

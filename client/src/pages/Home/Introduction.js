@@ -1,26 +1,25 @@
 import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux"; // useDispatch add kiya
+import { useSelector, useDispatch } from "react-redux";
 import { Form, Input, Button, Modal, message } from "antd";
-import axios from "axios"; // axios import kiya
-import { ShowLoading, HideLoading } from "../../redux/rootSlice"; // Loading states ke liye
+import axios from "axios";
+import { ShowLoading, HideLoading } from "../../redux/rootSlice";
 
 function Introduction() {
   const dispatch = useDispatch();
   const { portfolioData } = useSelector((state) => state.root);
-  const { intro } = portfolioData;
-  const { firstName, lastName, welcomeText, description, caption, image } = intro;
+  const { intro } = portfolioData || {};
+  const { firstName, lastName, welcomeText, description, caption, image } =
+    intro || {};
   const [open, setOpen] = useState(false);
 
-  // Enquiry submit karne ka naya function
   const onFinish = async (values) => {
     try {
       dispatch(ShowLoading());
-      // Backend API call jo humne portfolioRoute.js mein banayi hai
       const response = await axios.post("/api/portfolio/add-enquiry", values);
 
       if (response.data.success) {
         message.success(response.data.message);
-        setOpen(false); // Modal close karein
+        setOpen(false);
       } else {
         message.error(response.data.message);
       }
@@ -32,24 +31,36 @@ function Introduction() {
   };
 
   return (
-    <section className="relative bg-primary overflow-hidden">
+    <section
+      className="relative bg-primary overflow-hidden"
+      aria-label="Introduction Section"
+    >
       <div className="bg-primary sm:py-20 pt-6 pb-10 sm:px-0 intro_section grid grid-cols-1 md:grid-cols-[60%_40%] gap-8 md:gap-0">
+        {/* LEFT: Text content */}
         <div className="flex flex-col gap-3 md:gap-6 sm:gap-4 justify-center md:items-start items-center order-2 md:order-1 md:text-left text-center">
-          <h1 className="text-white text-sm sm:text-base mb-0">
-            {welcomeText || ""}
-          </h1>
+          {welcomeText && (
+            <p className="text-white text-sm sm:text-base mb-0">
+              {welcomeText}
+            </p>
+          )}
 
-          <h2 className="font-semibold text-secondary text-3xl md:text-4xl lg:text-5xl mb-0">
-            {firstName || ""} {lastName || ""}
-          </h2>
+          {(firstName || lastName) && (
+            <h1 className="font-semibold text-secondary text-3xl md:text-4xl lg:text-5xl mb-0">
+              {firstName} {lastName}
+            </h1>
+          )}
 
-          <h2 className="font-semibold text-white text-3xl md:text-4xl lg:text-5xl mb-0">
-            {caption || ""}
-          </h2>
+          {caption && (
+            <h2 className="font-semibold text-white text-3xl md:text-4xl lg:text-5xl mb-0">
+              {caption}
+            </h2>
+          )}
 
-          <p className="text-white max-w-[900px] text-sm sm:text-base leading-relaxed mb-0">
-            {description || ""}
-          </p>
+          {description && (
+            <p className="text-white max-w-[900px] text-sm sm:text-base leading-relaxed mb-0">
+              {description}
+            </p>
+          )}
 
           <button
             onClick={() => setOpen(true)}
@@ -59,31 +70,31 @@ function Introduction() {
           </button>
         </div>
 
-        {/* 👉 RIGHT: Image */}
+        {/* RIGHT: Profile Image */}
         <div className="relative flex justify-center order-1 md:order-2">
-          <div className="relative z-10">
+          <figure className="relative z-10">
             <img
-              // Image handling logic as discussed
               src={image ? `/uploads/${image}` : "/rupesh-profile.png"}
-              alt="Profile"
+              alt={`${firstName}${lastName} Profile`}
               className="w-[220px] md:w-[280px] lg:w-[300px] rounded-full object-cover border-4 border-white/10 z-50"
             />
-          </div>
+            <figcaption className="sr-only">
+              Profile image of {firstName} {lastName}
+            </figcaption>
+          </figure>
         </div>
       </div>
 
-      {/* FIXED MODAL: Ab ye direct Database mein data save karega */}
+      {/* ENQUIRY MODAL */}
       <Modal
         open={open}
         onCancel={() => setOpen(false)}
         footer={null}
         centered
         title="Project Enquiry"
+        aria-labelledby="project-enquiry-modal"
       >
-        <Form
-          layout="vertical"
-          onFinish={onFinish} // Updated function call
-        >
+        <Form layout="vertical" onFinish={onFinish}>
           <Form.Item
             label="Your Name"
             name="name"
@@ -113,7 +124,7 @@ function Introduction() {
 
           <Form.Item
             label="Project Details"
-            name="projectDetails" // Database schema se match karne ke liye change kiya
+            name="projectDetails"
             rules={[
               { required: true, message: "Please Describe Your Project" },
             ]}
