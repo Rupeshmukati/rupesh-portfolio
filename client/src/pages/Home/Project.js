@@ -86,8 +86,8 @@ function Project() {
             )}
 
             {selectedProject.technologies?.length > 0 && (
-              <p className="max-w-[600px] text-white text-sm sm:text-base mb-0">
-                <span className="font-medium">Technologies:</span>{" "}
+              <p className="max-w-[600px] text-white text-sm sm:text-base mb-0 leading-relaxed">
+                <span className="text-white text-sm sm:text-base font-semibold">Technologies:</span>{" "}
                 {selectedProject.technologies.join(", ")}
               </p>
             )}
