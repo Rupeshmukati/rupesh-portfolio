@@ -154,7 +154,7 @@ function AdminCourses() {
             </div>
 
             {/* Content */}
-            <p className="text-primary font-semibold pt-4">{course.title}</p>
+            <p className="text-primary font-semibold pt-4 mb-3">{course.title}</p>
             <img
               src={
                 course.image
